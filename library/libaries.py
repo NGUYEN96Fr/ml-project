@@ -1,3 +1,7 @@
+import pandas as pd
+import copy
+from sklearn.preprocessing import StandardScaler
+
 def eval_lr(model,X_train,Y_train,X_test,Y_test):
   """evaluate the performance of a model for regression problem. 
      Author: YU Boyang
@@ -36,3 +40,61 @@ def eval_lr(model,X_train,Y_train,X_test,Y_test):
     print("--------------------------------------")
     print('RMSE is {}'.format(rmse))
     print('R2 score is {}'.format(r2))
+
+    
+def data_pre(samples,target):  
+    """ 
+        Prepprocessing samples for preparing the training et testing steps.       
+        Author: NGUYEN Van-Khoa
+        
+        The function handles some problems existing in the original data such as missing values,
+        categorial types, standarlization.
+        
+        Args:
+        - samples (DataFrame object)
+        - target (DataFrame object)
+        
+        Output:
+        - pre_samples (DataFrame object): preprocessed samples.
+        - pre_target (DataFrame object): preprocessed target.
+    """
+    #
+    # Deep copy the samples and targets
+    #
+    samples_copy = copy.deepcopy(samples)
+    target_copy = copy.deepcopy(target)
+    
+    #
+    # Check and replace the missing values by the most frequent values.
+    #
+    filled_samples = samples_copy.apply(lambda x: x.fillna(x.value_counts().index[0]))
+    
+    #
+    # Encode the categorical values for both samples, targets 
+    # (https://pbpython.com/categorical-encoding.html)
+    # Retrieve the object type variables
+    obj_var_samples = filled_samples.select_dtypes(include=['object'])
+    for var in obj_var_samples:
+        filled_samples[var] = filled_samples[var].astype('category').cat.codes
+    
+    obj_var_target = target_copy.select_dtypes(include=['object'])
+    for var in obj_var_target:
+        target_copy[var] = target_copy[var].astype('category').cat.codes
+    
+    #
+    # Normalize the sample values
+    #
+    scaler = StandardScaler()
+    scaled_sample_array = scaler.fit_transform(filled_samples)
+    sample_variable_names = list(filled_samples.columns.values)
+    scaled_samples = pd.DataFrame(scaled_sample_array)
+    scaled_samples.columns = sample_variable_names
+    
+    #
+    # Return Data Frame objects
+    #
+    pre_samples = scaled_samples
+    pre_target = target_copy
+    
+    return pre_samples,pre_target
+        
