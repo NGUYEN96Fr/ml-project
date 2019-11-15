@@ -44,14 +44,10 @@ def eval_lr(model,X_train,Y_train,X_test,Y_test):
     print('RMSE is {}'.format(rmse))
     print('R2 score is {}'.format(r2))
     return None
-
-
-
-
     
-def data_pre(samples,target):  
+def data_cl(samples,target):  
     """ 
-        Prepprocessing samples for preparing the training et testing steps.       
+        Prepprocessing data (including the samples and the target).       
         Author: NGUYEN Van-Khoa
         
         The function handles some problems existing in the original data such as missing values,
@@ -104,6 +100,7 @@ def data_pre(samples,target):
     pre_target = target_copy
     
     return pre_samples,pre_target
+
 
 
 def lr_model(X_train,y_train):
