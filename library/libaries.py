@@ -1,28 +1,31 @@
 import pandas as pd
+import numpy as np
 import copy
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
 
 def eval_lr(model,X_train,Y_train,X_test,Y_test):
-  """evaluate the performance of a model for regression problem. 
-     Author: YU Boyang
+    """evaluate the performance of a model for regression problem.
+         Author: YU Boyang
 
-    This function uses two metrics: root mean square error and R2 score 
-    to show the performance of model on both train data and test data,  
-    rmse closer to 0 and R2 closer to 1, better the model.
+        This function uses two metrics: root mean square error and R2 score
+        to show the performance of model on both train data and test data,
+        rmse closer to 0 and R2 closer to 1, better the model.
 
-    Args:
-        model: An trained model of regression problem.
-        X_train,Y_train: train data and labels
-        X_test, Y_test:  test data and labels
-    Returns:null
+        Args:
+            model: An trained model of regression problem.
+            X_train,Y_train: train data and labels
+            X_test, Y_test:  test data and labels
+        Returns:null
 
-    """
+      """
 
     # model evaluation for training set
     y_train_predict = model.predict(X_train)
     rmse = (np.sqrt(mean_squared_error(Y_train, y_train_predict)))
-    #r2 represents the area between our model and the mean model/ area between best model and the mean model, so 1 is the best 
-    #https://ragrawal.wordpress.com/2017/05/06/intuition-behind-r2-and-other-regression-evaluation-metrics/
+    # r2 represents the area between our model and the mean model/ area between best model and the mean model, so 1 is the best
+    # https://ragrawal.wordpress.com/2017/05/06/intuition-behind-r2-and-other-regression-evaluation-metrics/
     r2 = r2_score(Y_train, y_train_predict)
 
     print("The model performance for training set")
@@ -40,6 +43,10 @@ def eval_lr(model,X_train,Y_train,X_test,Y_test):
     print("--------------------------------------")
     print('RMSE is {}'.format(rmse))
     print('R2 score is {}'.format(r2))
+    return None
+
+
+
 
     
 def data_pre(samples,target):  
@@ -97,4 +104,55 @@ def data_pre(samples,target):
     pre_target = target_copy
     
     return pre_samples,pre_target
-        
+
+
+def lr_model(X_train,y_train):
+    """
+    This function trains a Linear Regression model form the training data
+
+    :param X_train:
+    :param y_train:
+    :return: trained Linear Regression model
+    """
+    from sklearn.linear_model import LinearRegression
+    line = LinearRegression()
+    line.fit(X_train, y_train)
+    return line
+
+def ridge_model(X_train,y_train):
+    """
+    This function trains a Ridge Regression model form the training data
+    :param X_train:
+    :param y_train:
+    :return:  trained Ridge Regression model
+    """
+    from sklearn.linear_model import Ridge
+    ridge = Ridge(alpha=0.1)
+    ridge.fit(X_train, y_train)
+    return ridge
+
+
+def svr_linear_model(X_train,y_train):
+    """
+    This function trains a SVR Linear model form the training data
+    :param X_train:
+    :param y_train:
+    :return:  trained SVR Linear model
+    """
+    from sklearn.svm import SVR
+    svr_linear = SVR(kernel='linear')
+    svr_linear.fit(X_train, y_train)
+    return svr_linear
+
+
+def svr_rbf_model(X_train,y_train):
+    """
+    This function trains a SVR RBF model form the training data
+    :param X_train:
+    :param y_train:
+    :return:  trained SVR RBF model
+    """
+    from sklearn.svm import SVR
+    svr_rbf = SVR(kernel='rbf')
+    svr_rbf.fit(X_train, y_train)
+    return svr_rbf
