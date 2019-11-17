@@ -6,45 +6,71 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split, KFold
 
 
-def eval_lr(model,X_train,Y_train,X_test,Y_test):
-    """evaluate the performance of a model for regression problem.
-         Author: YU Boyang
-
-        This function uses two metrics: root mean square error and R2 score
-        to show the performance of model on both train data and test data,
-        rmse closer to 0 and R2 closer to 1, better the model.
-
-        Args:
-            model: An trained model of regression problem.
-            X_train,Y_train: train data and labels
-            X_test, Y_test:  test data and labels
-        Returns:null
-
-      """
-
-    # model evaluation for training set
-    y_train_predict = model.predict(X_train)
-    rmse = (np.sqrt(mean_squared_error(Y_train, y_train_predict)))
-    # r2 represents the area between our model and the mean model/ area between best model and the mean model, so 1 is the best
-    # https://ragrawal.wordpress.com/2017/05/06/intuition-behind-r2-and-other-regression-evaluation-metrics/
-    r2 = r2_score(Y_train, y_train_predict)
-
-    print("The model performance for training set")
-    print("--------------------------------------")
-    print('RMSE is {}'.format(rmse))
-    print('R2 score is {}'.format(r2))
-    print("\n")
-
-    # model evaluation for testing set
-    y_test_predict = model.predict(X_test)
-    rmse = (np.sqrt(mean_squared_error(Y_test, y_test_predict)))
-    r2 = r2_score(Y_test, y_test_predict)
-
-    print("The model performance for testing set")
-    print("--------------------------------------")
-    print('RMSE is {}'.format(rmse))
-    print('R2 score is {}'.format(r2))
-    return None
+def data_import(file,features = None ,target_label = None):
+    """ Import data. Extract features, target_label's values. Create samples, target.
+    
+    Author: NGUYEN Van-Khoa
+    
+    The function selects data's attributes for creating samples and target.
+    
+    Parameters
+    ----------
+    - file: string
+        file name of the data
+   
+    - features: list of strings (default = None)
+        + the name of features that we want to include in the sample
+        + use default defined features if the features aren't given.
+    
+    - target_label: string (default = None)
+        + the target label for creating the target
+        + use the default defined target if the target isn't given. 
+        
+      Returns:
+    ----------
+    - samples: DataFrame object
+        
+    - target: DataFrame object 
+        
+    """
+    
+    if file == 'HousingData.csv':
+        data = pd.read_csv(file)
+        
+        if (features != None) and (data != None):
+            
+            samples = data[features]
+            target = data[target_label].to_frame()
+            
+        else:
+            defined_features = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX',
+       'PTRATIO', 'B', 'LSTAT']
+            defined_target_label = ['MEDV']
+            
+            samples = data[defined_features]
+            target = data[defined_target_label]
+        
+    elif  file == 'prostate.data':
+        data = pd.read_csv(file, sep = '\t')
+        
+        if (features != None) and (data != None):
+            
+            samples = data[features]
+            target = data[target_label].to_frame()
+            
+        else:
+            defined_features = ['lcavol', 'lweight', 'age', 'lbph', 'svi', 'lcp',
+       'gleason', 'pgg45']
+            defined_target_label = ['lpsa']
+            
+            samples = data[defined_features]
+            target = data[defined_target_label]
+            
+    else:
+        print('File name Error')
+     
+    
+    return samples, target
     
     
 def data_cl(samples,target):  
@@ -236,3 +262,44 @@ def svr_rbf_model(X_train,y_train):
     svr_rbf = SVR(kernel='rbf')
     svr_rbf.fit(X_train, y_train)
     return svr_rbf
+
+
+def eval_lr(model,X_train,Y_train,X_test,Y_test):
+    """evaluate the performance of a model for regression problem.
+         Author: YU Boyang
+
+        This function uses two metrics: root mean square error and R2 score
+        to show the performance of model on both train data and test data,
+        rmse closer to 0 and R2 closer to 1, better the model.
+
+        Args:
+            model: An trained model of regression problem.
+            X_train,Y_train: train data and labels
+            X_test, Y_test:  test data and labels
+        Returns:null
+
+      """
+
+    # model evaluation for training set
+    y_train_predict = model.predict(X_train)
+    rmse = (np.sqrt(mean_squared_error(Y_train, y_train_predict)))
+    # r2 represents the area between our model and the mean model/ area between best model and the mean model, so 1 is the best
+    # https://ragrawal.wordpress.com/2017/05/06/intuition-behind-r2-and-other-regression-evaluation-metrics/
+    r2 = r2_score(Y_train, y_train_predict)
+
+    print("The model performance for training set")
+    print("--------------------------------------")
+    print('RMSE is {}'.format(rmse))
+    print('R2 score is {}'.format(r2))
+    print("\n")
+
+    # model evaluation for testing set
+    y_test_predict = model.predict(X_test)
+    rmse = (np.sqrt(mean_squared_error(Y_test, y_test_predict)))
+    r2 = r2_score(Y_test, y_test_predict)
+
+    print("The model performance for testing set")
+    print("--------------------------------------")
+    print('RMSE is {}'.format(rmse))
+    print('R2 score is {}'.format(r2))
+    return None
