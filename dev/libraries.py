@@ -1,9 +1,12 @@
 import pandas as pd
 import numpy as np
 import copy
+import seaborn as sns
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split, KFold
+
 
 
 def data_import(file,features = None ,target_label = None):
@@ -33,12 +36,11 @@ def data_import(file,features = None ,target_label = None):
     - target: DataFrame object 
         
     """
-    
-    if file == 'HousingData.csv':
-        data = pd.read_csv(file)
+    if  file == 'HousingData.csv':
         
+        data = pd.read_csv('../data/HousingData.csv')
         if (features != None) and (data != None):
-            
+   
             samples = data[features]
             target = data[target_label].to_frame()
             
@@ -51,7 +53,7 @@ def data_import(file,features = None ,target_label = None):
             target = data[defined_target_label]
         
     elif  file == 'prostate.data':
-        data = pd.read_csv(file, sep = '\t')
+        data = pd.read_csv('../data/prostate.data', sep = '\t')
         
         if (features != None) and (data != None):
             
@@ -69,7 +71,8 @@ def data_import(file,features = None ,target_label = None):
     else:
         print('File name Error')
      
-    
+       
+
     return samples, target
     
     
@@ -98,7 +101,7 @@ def data_cl(samples,target):
     
     """
     #
-    # Deep copy the samples and targets
+    # Deep copy the  and targets
     #
     samples_copy = copy.deepcopy(samples)
     target_copy = copy.deepcopy(target)
@@ -106,7 +109,7 @@ def data_cl(samples,target):
     #
     # Check and replace the missing values by the most frequent values.
     #
-    filled_samples = samples_copy.apply(lambda x: x.fillna(x.value_counts().index[0]))
+    
     
     #
     # Encode the categorical values for both samples, targets 
@@ -262,6 +265,75 @@ def svr_rbf_model(X_train,y_train):
     svr_rbf = SVR(kernel='rbf')
     svr_rbf.fit(X_train, y_train)
     return svr_rbf
+
+def feature_correlation(namedataset):
+    """show the correlationship between different features of the dataset 
+        Author: Lei ZAN
+    Parameters:
+    
+    namedataset:{'HousingData.csv', 'prostate.data'}
+    
+    Return:
+    
+    correlation map of different features
+    
+    """
+    if namedataset== 'HousingData.csv':
+        column_names = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV']
+        #data_1 = pd.read_csv('../data/HousingData.csv', header=None, delimiter=r"\s+",names=column_names)
+        data_1 = pd.read_csv('../data/HousingData.csv')
+        data_1 = data_1[~(data_1['MEDV'] >= 50.0)]
+        plt.figure(figsize=(20, 10))
+        plt.title("The correlation between features of dataset HousingData")
+        sns.heatmap(data_1.corr().abs(),  annot=True)
+    elif namedataset== 'prostate.data':
+        column_names = ['lcavol', 'lweight', 'age', 'lbph', 'svi', 'lcp', 'gleason', 'pgg45', 'lpsa', 'train/test indicator']
+        data = pd.read_csv('../data/prostate.data', index_col=0, header=0, delimiter=r"\s+", names=column_names)
+        column_sels = ['lcavol', 'lweight', 'age', 'lbph', 'svi', 'lcp', 'gleason', 'pgg45', 'lpsa']
+        data = data.loc[:,column_sels]
+        plt.figure(figsize=(20, 10))
+        plt.title('The correlation between features of dataset prostate')
+        sns.heatmap(data.corr().abs(),  annot=True)
+
+        
+def feature_distribution(namedataset):
+    """show the distribution of different features of the dataset 
+        Author: Lei ZAN
+    Parameters:
+    
+    namedataset:{'HousingData.csv', 'prostate.data'}
+    
+    Return:
+    
+    distribution map of different features
+    
+    """
+    if namedataset== 'HousingData.csv':
+        column_names = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV']
+        #data_1 = pd.read_csv('../data/HousingData.csv', header=None, delimiter=r"\s+",names=column_names)
+        data_1 = pd.read_csv('../data/HousingData.csv')
+        data_1 = data_1[~(data_1['MEDV'] >= 50.0)]
+        data_1 = data_1.apply(lambda x: x.fillna(x.value_counts().index[0]))
+        #Voir les distributions de chaque features 
+        fig, axs = plt.subplots(ncols=7, nrows=2, figsize=(20, 10))
+        index = 0
+        axs = axs.flatten()
+        for k,v in data_1.items():
+            sns.distplot(v, ax=axs[index])
+            index += 1
+        plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=5.0)
+    elif namedataset== 'prostate.data':
+        column_names = ['lcavol', 'lweight', 'age', 'lbph', 'svi', 'lcp', 'gleason', 'pgg45', 'lpsa', 'train/test indicator']
+        data = pd.read_csv('../data/prostate.data', index_col=0, header=0, delimiter=r"\s+", names=column_names)
+        column_sels = ['lcavol', 'lweight', 'age', 'lbph', 'svi', 'lcp', 'gleason', 'pgg45', 'lpsa']
+        data = data.loc[:,column_sels]
+        fig, axs = plt.subplots(ncols=9, nrows=1, figsize=(20, 10))
+        index = 0
+        axs = axs.flatten()
+        for k,v in data.items():
+            sns.distplot(v, ax=axs[index])
+            index += 1
+        plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=5.0)
 
 
 def eval_lr(model,X_train,Y_train,X_test,Y_test):
