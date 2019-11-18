@@ -5,7 +5,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.svm import SVR
-from sklearn.linear_model import Ridge,LinearRegression
+from sklearn.linear_model import Ridge,LinearRegression,Lasso
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor
+
+
 
 def data_import(file,features = None ,target_label = None):
     """ Import data. Extract features, target_label's values. Create samples, target.
@@ -216,7 +220,7 @@ def train(X_train,y_train,model='lr'):
     """
     This function trains a regression model form the training data
     model is assigned by argument "model",it can takes lr,ridge,svr_l
-    and svr_rbf.
+    and svr_rbf etc.
     Author: LIU Xi,YU Boyang
     
     :param X_train:
@@ -231,14 +235,25 @@ def train(X_train,y_train,model='lr'):
     elif model=='svr_l':  
         return svr_linear_model(X_train,y_train)
     elif model=='svr_rbf':  
-        return svr_rbf_model(X_train,y_train)              
+        return svr_rbf_model(X_train,y_train)
+    elif model=='lasso':  
+        return lasso(X_train,y_train) 
+    elif model=='dt':  
+        return dt(X_train,y_train)
+    elif model=='rf':  
+        return rf(X_train,y_train)
+    elif model=='gbr':  
+        return gbr(X_train,y_train)  
+    elif model=='knn':  
+        return knn(X_train,y_train)               
 
    
 
 def lr_model(X_train,y_train):
     """
     This function trains a Linear Regression model form the training data
-
+    Author: LIU Xi
+    
     :param X_train:
     :param y_train:
     :return: trained Linear Regression model
@@ -250,6 +265,8 @@ def lr_model(X_train,y_train):
 def ridge_model(X_train,y_train):
     """
     This function trains a Ridge Regression model form the training data
+    Author: LIU Xi
+    
     :param X_train:
     :param y_train:
     :return:  trained Ridge Regression model
@@ -257,11 +274,39 @@ def ridge_model(X_train,y_train):
     ridge = Ridge(alpha=0.1)
     ridge.fit(X_train, y_train)
     return ridge
+    
+def lasso(X_train,y_train):
+    """
+    This function trains a lasso model form the training data
+    Author: LIU Xi
+    
+    :param X_train:
+    :param y_train:
+    :return: trained lasso model
+    """
+    lasso = Lasso(alpha=0.0001)
+    lasso.fit(X_train,y_train)
+    return lasso   
+    
+def knn(X_train,y_train):
+    """
+    This function trains a KNN model form the training data
+    Author: ZAN Lei 
+    
+    :param X_train:
+    :param y_train:
+    :return: trained KNN model
+    """
+    knn = KNeighborsRegressor(n_neighbors=int(3))
+    knn.fit(X_train,y_train)
+    return knn 
+        
 
 
 def svr_linear_model(X_train,y_train):
     """
     This function trains a SVR Linear model form the training data
+    Author: LIU Xi
     :param X_train:
     :param y_train:
     :return:  trained SVR Linear model
@@ -274,6 +319,7 @@ def svr_linear_model(X_train,y_train):
 def svr_rbf_model(X_train,y_train):
     """
     This function trains a SVR RBF model form the training data
+    Author: LIU Xi
     :param X_train:
     :param y_train:
     :return:  trained SVR RBF model
@@ -282,20 +328,64 @@ def svr_rbf_model(X_train,y_train):
     svr_rbf.fit(X_train, y_train)
     return svr_rbf
 
+def gbr(X_train,y_train):
+    """
+    This function trains a GradientBoostingRegressor model form the training data
+    Author: LIU Xi
+    
+    :param X_train:
+    :param y_train:
+    :return:  trained GBR model
+    """   
+    params = {'n_estimators': 500, 'max_depth': 4, 'min_samples_split': 2,
+          'learning_rate': 0.01, 'loss': 'ls'}
+    gbr_model = GradientBoostingRegressor(**params)
+    gbr_model.fit(X_train,y_train)
+   
+    return gbr_model
+
+ 
+def dt(X_train,y_train):
+    """
+    This function trains a decision treee form the training data
+    Author: YU Boyang
+    :param X_train:
+    :param y_train:
+    :return: decision tree model
+    """
+    tree_model = tree.DecisionTreeRegressor()
+    tree_model.fit(X_train,y_train)
+    return tree_model     
+    
+def rf(X_train,y_train):
+    """
+    This function trains a random forest model form the training data
+    Author: YU Boyang
+    :param X_train:
+    :param y_train:
+    :return:  trained random forest
+    """   
+    forest_model  = RandomForestRegressor(n_estimators=1000)
+    forest_model.fit(X_train,y_train)
+     
+    return forest_model    
+
+
 
 def eval_lr(model,X_train,Y_train,X_test,Y_test):
-    """evaluate the performance of a model for regression problem.
-         Author: YU Boyang
+    """
+    evaluate the performance of a model for regression problem.
+    Author: YU Boyang
 
-        This function uses two metrics: root mean square error and R2 score
-        to show the performance of model on both train data and test data,
-        rmse closer to 0 and R2 closer to 1, better the model.
+    This function uses two metrics: root mean square error and R2 score
+    to show the performance of model on both train data and test data,
+    rmse closer to 0 and R2 closer to 1, better the model.
 
-        Args:
-            model: An trained model of regression problem.
-            X_train,Y_train(type:numpy arrays): train data and labels
-            X_test, Y_test (type:numpy arrays):  test data and labels
-        Returns:null
+    Args:
+        model: An trained model of regression problem.
+        X_train,Y_train(type:numpy arrays): train data and labels
+        X_test, Y_test (type:numpy arrays):  test data and labels
+    Returns:null
 
       """
 
