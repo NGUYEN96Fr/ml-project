@@ -4,7 +4,8 @@ import copy
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split, KFold
-
+from sklearn.svm import SVR
+from sklearn.linear_model import Ridge,LinearRegression
 
 def data_import(file,features = None ,target_label = None):
     """ Import data. Extract features, target_label's values. Create samples, target.
@@ -35,7 +36,7 @@ def data_import(file,features = None ,target_label = None):
     """
     
     if file == 'HousingData.csv':
-        data = pd.read_csv(file)
+        data = pd.read_csv('../data/HousingData.csv')
         
         if (features != None) and (data != None):
             
@@ -51,7 +52,7 @@ def data_import(file,features = None ,target_label = None):
             target = data[defined_target_label]
         
     elif  file == 'prostate.data':
-        data = pd.read_csv(file, sep = '\t')
+        data = pd.read_csv('../data/prostate.csv', sep = '\t')
         
         if (features != None) and (data != None):
             
@@ -211,6 +212,28 @@ def data_split(samples,target,test_size = 0.2, k = 10, shuffle = True):
     
     return train_set, test_set, train_crs_val, test_crs_val
 
+def train(X_train,y_train,model='lr'):
+    """
+    This function trains a regression model form the training data
+    model is assigned by argument "model",it can takes lr,ridge,svr_l
+    and svr_rbf.
+    Author: LIU Xi,YU Boyang
+    
+    :param X_train:
+    :param y_train:
+    :param model:
+    :return: trained Regression model
+    """
+    if model=='lr':
+        return lr_model(X_train,y_train)
+    elif model=='ridge':  
+        return lr_model(X_train,y_train)
+    elif model=='svr_l':  
+        return svr_linear_model(X_train,y_train)
+    elif model=='svr_rbf':  
+        return svr_rbf_model(X_train,y_train)              
+
+   
 
 def lr_model(X_train,y_train):
     """
@@ -220,7 +243,6 @@ def lr_model(X_train,y_train):
     :param y_train:
     :return: trained Linear Regression model
     """
-    from sklearn.linear_model import LinearRegression
     line = LinearRegression()
     line.fit(X_train, y_train)
     return line
@@ -232,7 +254,6 @@ def ridge_model(X_train,y_train):
     :param y_train:
     :return:  trained Ridge Regression model
     """
-    from sklearn.linear_model import Ridge
     ridge = Ridge(alpha=0.1)
     ridge.fit(X_train, y_train)
     return ridge
@@ -245,7 +266,6 @@ def svr_linear_model(X_train,y_train):
     :param y_train:
     :return:  trained SVR Linear model
     """
-    from sklearn.svm import SVR
     svr_linear = SVR(kernel='linear')
     svr_linear.fit(X_train, y_train)
     return svr_linear
@@ -258,7 +278,6 @@ def svr_rbf_model(X_train,y_train):
     :param y_train:
     :return:  trained SVR RBF model
     """
-    from sklearn.svm import SVR
     svr_rbf = SVR(kernel='rbf')
     svr_rbf.fit(X_train, y_train)
     return svr_rbf
@@ -274,8 +293,8 @@ def eval_lr(model,X_train,Y_train,X_test,Y_test):
 
         Args:
             model: An trained model of regression problem.
-            X_train,Y_train: train data and labels
-            X_test, Y_test:  test data and labels
+            X_train,Y_train(type:numpy arrays): train data and labels
+            X_test, Y_test (type:numpy arrays):  test data and labels
         Returns:null
 
       """
