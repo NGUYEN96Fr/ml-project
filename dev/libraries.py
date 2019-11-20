@@ -110,7 +110,7 @@ def data_cl(samples,target):
     #
     # Check and replace the missing values by the most frequent values.
     #
-    illed_samples = samples_copy.apply(lambda x: x.fillna(x.value_counts().index[0]))
+    filled_samples = samples_copy.apply(lambda x: x.fillna(x.value_counts().index[0]))
 
     #
     # Encode the categorical values for both samples, targets
