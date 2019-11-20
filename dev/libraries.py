@@ -41,17 +41,9 @@ def data_import(file,features = None ,target_label = None):
     - target: DataFrame object
 
     """
-<<<<<<< HEAD:dev/libraries.py
-    if  file == 'HousingData.csv':
-=======
-
     if file == 'HousingData.csv':
         data = pd.read_csv('../data/HousingData.csv')
->>>>>>> 2c518f5e14f4ff9caf0c7480d55e00bc5616a1d5:library/libraries.py
-
-        data = pd.read_csv('../data/HousingData.csv')
         if (features != None) and (data != None):
-
             samples = data[features]
             target = data[target_label].to_frame()
 
@@ -64,12 +56,7 @@ def data_import(file,features = None ,target_label = None):
             target = data[defined_target_label]
 
     elif  file == 'prostate.data':
-<<<<<<< HEAD:dev/libraries.py
-        data = pd.read_csv('../data/prostate.data', sep = '\t')
-=======
         data = pd.read_csv('../data/prostate.csv', sep = '\t')
->>>>>>> 2c518f5e14f4ff9caf0c7480d55e00bc5616a1d5:library/libraries.py
-
         if (features != None) and (data != None):
 
             samples = data[features]
@@ -85,8 +72,6 @@ def data_import(file,features = None ,target_label = None):
 
     else:
         print('File name Error')
-
-
 
     return samples, target
 
