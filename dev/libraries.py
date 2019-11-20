@@ -10,7 +10,8 @@ from sklearn.svm import SVR
 from sklearn.linear_model import Ridge,LinearRegression,Lasso
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor
-
+import warnings
+warnings.filterwarnings('ignore')
 
 def data_import(file,features = None ,target_label = None):
     """ Import data. Extract features, target_label's values. Create samples, target.
