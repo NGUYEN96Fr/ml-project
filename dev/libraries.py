@@ -10,6 +10,7 @@ from sklearn.svm import SVR
 from sklearn.linear_model import Ridge,LinearRegression,Lasso
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor
+from sklearn.decomposition import PCA
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -215,6 +216,77 @@ def data_split(samples,target,test_size = 0.2, k = 10, shuffle = True):
         test_crs_val.append((x_test,y_test))
 
     return train_set, test_set, train_crs_val, test_crs_val
+
+
+def Demension_Reduction(X, variances = 0.8, nb_max = 5, to_plot = False,):
+    """
+    This function does the dimension reduction on the samples
+    Author: NGUYEN Van-Khoa
+
+    Parameters
+    ----------
+    - X: numpy array
+        (nb_samples,features)
+    - variances: float (default = 0.98)
+        The percentage of variances to keep
+    - nb_max: int (default = 5)
+        max number of components considered to plot
+    - to_plot: boolean
+        plot the analysis
+
+    Returns
+    -------
+    - X_new: the new X with reduced dimensions
+    """
+    # number of observations
+    n = X.shape[0]
+
+    # instanciation
+    acp = PCA(svd_solver='full')
+    X_transform = acp.fit_transform(X)
+    print("Number of acp components features= ", acp.n_components_)
+    #variance explained
+    eigval = acp.explained_variance_
+
+    # variance of each component
+    variances = acp.explained_variance_ratio_
+
+    # percentage of variance explained
+    cumsum_var_explained= np.cumsum(variances)
+    print("cumsum variance explained= ",cumsum_var_explained[0:nb_max-1])
+
+    #get the number of components satisfying the establised variance condition
+    nb_component_features = np.where(cumsum_var_explained>variances)[0][0]
+    acp_features = PCA(svd_solver='full',n_components =nb_component_features+1)
+    X_new = acp_features.fit_transform(X)
+
+    if to_plot:
+
+        plt.figure(figsize=(10,5))
+        plt.plot(np.arange(1,nb_max),variances[0:nb_max-1])
+        plt.scatter(np.arange(1,nb_max),variances[0:nb_max-1])
+        plt.title("Variance explained by each component")
+        plt.ylabel("Variance values")
+        plt.xlabel("Component")
+
+        #scree plot
+        plt.figure(figsize=(15,10))
+
+        plt.subplot(221)
+        plt.plot(np.arange(1,nb_max),eigval[0:nb_max-1])
+        plt.scatter(np.arange(1,nb_max),eigval[0:nb_max-1])
+        plt.title("Scree plot")
+        plt.ylabel("Eigen values")
+        plt.xlabel("Factor number")
+
+        plt.subplot(222)
+        plt.plot(np.arange(1,nb_max),cumsum_var_explained[0:nb_max-1])
+        plt.scatter(np.arange(1,nb_max),cumsum_var_explained[0:nb_max-1])
+        plt.title("Total Variance explained")
+        plt.ylabel("Variance values")
+        plt.xlabel("Factor number")
+
+    return X_new
 
 
 def train(X_train,y_train,model='lr'):
