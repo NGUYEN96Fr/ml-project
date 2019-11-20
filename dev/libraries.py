@@ -12,8 +12,6 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor
 
 
-
-
 def data_import(file,features = None ,target_label = None):
     """ Import data. Extract features, target_label's values. Create samples, target.
 
@@ -41,6 +39,9 @@ def data_import(file,features = None ,target_label = None):
     - target: DataFrame object
 
     """
+    samples = pd.DataFrame()
+    target = pd.DataFrame()
+
     if file == 'HousingData.csv':
         data = pd.read_csv('../data/HousingData.csv')
         if (features != None) and (data != None):
@@ -214,12 +215,13 @@ def data_split(samples,target,test_size = 0.2, k = 10, shuffle = True):
 
     return train_set, test_set, train_crs_val, test_crs_val
 
+
 def train(X_train,y_train,model='lr'):
     """
     This function trains a regression model form the training data
     model is assigned by argument "model",it can takes lr,ridge,svr_l
     and svr_rbf etc.
-    Author: LIU Xi,YU Boyang
+    Co-Authors: LIU Xi,YU Boyang
 
     :param X_train:
     :param y_train:
@@ -244,7 +246,6 @@ def train(X_train,y_train,model='lr'):
         return gbr(X_train,y_train)
     elif model=='knn':
         return knn(X_train,y_train)
-
 
 
 def lr_model(X_train,y_train):
