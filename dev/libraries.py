@@ -10,6 +10,7 @@ from sklearn.svm import SVR
 from sklearn.linear_model import Ridge,LinearRegression,Lasso
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.decomposition import PCA
 import warnings
 warnings.filterwarnings('ignore')
@@ -152,10 +153,10 @@ def data_split(samples,target,test_size = 0.2, k = 10, shuffle = True):
 
     Parameters
     ----------
-    - samples: DataFrame object
+    - samples: array
         Preprocessed samples. # fill missing values, encode categorical types, standarlization
 
-    - target: DataFrame object
+    - target: array
         Preprocessed target.
 
     - k: int (default = 10)
@@ -182,23 +183,25 @@ def data_split(samples,target,test_size = 0.2, k = 10, shuffle = True):
     #
     # convert samples, target to numpy array.
     #
-    X = samples.values
-    y = target.values
+    X = samples
+    y = target
 
     #
     # train, test split.
     #
+
+
     X_train, X_test, Y_train, Y_test = train_test_split( X, y, test_size = test_size, shuffle = shuffle)
 
     # train set
     train_set = {}
-    train_set['feature_train'] = X_train
-    train_set['target_train'] = Y_train
+    train_set['X_train'] = X_train
+    train_set['y_train'] = Y_train
 
     # test set
     test_set = {}
-    test_set['feature_test'] = X_test
-    test_set['target_test'] = Y_test
+    test_set['X_test'] = X_test
+    test_set['y_test'] = Y_test
 
     #
     # K-fold cross-validation.
@@ -218,27 +221,35 @@ def data_split(samples,target,test_size = 0.2, k = 10, shuffle = True):
     return train_set, test_set, train_crs_val, test_crs_val
 
 
-def Demension_Reduction(X, variances = 0.8, nb_max = 5, to_plot = False,):
+def Dimension_Reduction(samples, target, variance = 0.9, nb_max = 13, to_plot = False,):
     """
     This function does the dimension reduction on the samples
     Author: NGUYEN Van-Khoa
 
     Parameters
     ----------
-    - X: numpy array
+    - samples: DataFrame
         (nb_samples,features)
-    - variances: float (default = 0.98)
+    - target: DataFrame
+        Preprocessed target.
+    - variances: float (default = 0.90)
         The percentage of variances to keep
-    - nb_max: int (default = 5)
+    - nb_max: int (default = 13)
         max number of components considered to plot
     - to_plot: boolean
         plot the analysis
 
     Returns
     -------
-    - X_new: the new X with reduced dimensions
+    - X_new: array
+        the new X with reduced dimensions
+    - y: array
+        the target
     """
     # number of observations
+    X = samples.values
+    y = target.values
+
     n = X.shape[0]
 
     # instanciation
@@ -256,7 +267,8 @@ def Demension_Reduction(X, variances = 0.8, nb_max = 5, to_plot = False,):
     print("cumsum variance explained= ",cumsum_var_explained[0:nb_max-1])
 
     #get the number of components satisfying the establised variance condition
-    nb_component_features = np.where(cumsum_var_explained>variances)[0][0]
+    nb_component_features = np.where(cumsum_var_explained>variance)[0][0]
+    print('nb_component_features: ', nb_component_features)
     acp_features = PCA(svd_solver='full',n_components =nb_component_features+1)
     X_new = acp_features.fit_transform(X)
 
@@ -286,119 +298,106 @@ def Demension_Reduction(X, variances = 0.8, nb_max = 5, to_plot = False,):
         plt.ylabel("Variance values")
         plt.xlabel("Factor number")
 
-    return X_new
+    return X_new,y
 
 
-def train(X_train,y_train,model='lr'):
+def model_init(model='lr'):
     """
-    This function trains a regression model form the training data
-    model is assigned by argument "model",it can takes lr,ridge,svr_l
-    and svr_rbf etc.
-    Co-Authors: LIU Xi,YU Boyang
+    This function initiates a regression model.
+    Co-Authors: LIU Xi,YU Boyang, NGUYEN Van-Khoa
 
-    :param X_train:
-    :param y_train:
-    :param model:
-    :return: trained Regression model
+    Parameters:
+    ----------
+    - model: string
+        type of a regression algorithm
+    Returns:
+    -------
+    - a initiated model
     """
+
+    if model == 'decision_tree':
+        return decision_tree()
     if model=='lr':
-        return lr_model(X_train,y_train)
+        return lr_model()
     elif model=='ridge':
-        return lr_model(X_train,y_train)
+        return lr_model()
     elif model=='svr_l':
-        return svr_linear_model(X_train,y_train)
+        return svr_linear_model()
     elif model=='svr_rbf':
-        return svr_rbf_model(X_train,y_train)
+        return svr_rbf_model()
     elif model=='lasso':
-        return lasso(X_train,y_train)
+        return lasso()
     elif model=='dt':
-        return dt(X_train,y_train)
+        return dt()
     elif model=='rf':
-        return rf(X_train,y_train)
+        return rf()
     elif model=='gbr':
-        return gbr(X_train,y_train)
+        return gbr()
     elif model=='knn':
-        return knn(X_train,y_train)
+        return knn()
 
 
-def lr_model(X_train,y_train):
+def decision_tree():
+    """
+    Regression with Decision Tree
+    Author: NGUYEN Van-Khoa
+
+    """
+    tree = DecisionTreeRegressor(random_state=0)
+    return tree
+
+
+def lr_model():
     """
     This function trains a Linear Regression model form the training data
     Author: LIU Xi
-
-    :param X_train:
-    :param y_train:
-    :return: trained Linear Regression model
     """
     line = LinearRegression()
-    line.fit(X_train, y_train)
     return line
 
-def ridge_model(X_train,y_train):
+
+def ridge_model():
     """
     This function trains a Ridge Regression model form the training data
     Author: LIU Xi
-
-    :param X_train:
-    :param y_train:
-    :return:  trained Ridge Regression model
     """
     ridge = Ridge(alpha=0.1)
-    ridge.fit(X_train, y_train)
     return ridge
 
-def lasso(X_train,y_train):
+
+def lasso():
     """
     This function trains a lasso model form the training data
     Author: LIU Xi
-
-    :param X_train:
-    :param y_train:
-    :return: trained lasso model
     """
     lasso = Lasso(alpha=0.0001)
-    lasso.fit(X_train,y_train)
     return lasso
 
-def knn(X_train,y_train):
+
+def knn():
     """
     This function trains a KNN model form the training data
     Author: ZAN Lei
-
-    :param X_train:
-    :param y_train:
-    :return: trained KNN model
     """
     knn = KNeighborsRegressor(n_neighbors=int(3))
-    knn.fit(X_train,y_train)
     return knn
 
-
-
-def svr_linear_model(X_train,y_train):
+def svr_linear_model():
     """
     This function trains a SVR Linear model form the training data
     Author: LIU Xi
-    :param X_train:
-    :param y_train:
-    :return:  trained SVR Linear model
     """
     svr_linear = SVR(kernel='linear')
-    svr_linear.fit(X_train, y_train)
     return svr_linear
 
-
-def svr_rbf_model(X_train,y_train):
+def svr_rbf_model():
     """
     This function trains a SVR RBF model form the training data
     Author: LIU Xi
-    :param X_train:
-    :param y_train:
-    :return:  trained SVR RBF model
     """
     svr_rbf = SVR(kernel='rbf')
-    svr_rbf.fit(X_train, y_train)
     return svr_rbf
+
 
 def feature_correlation(namedataset):
     """show the correlationship between different features of the dataset
@@ -428,7 +427,6 @@ def feature_correlation(namedataset):
         plt.figure(figsize=(20, 10))
         plt.title('The correlation between features of dataset prostate')
         sns.heatmap(data.corr().abs(),  annot=True)
-
 
 def feature_distribution(namedataset):
     """show the distribution of different features of the dataset
@@ -470,43 +468,98 @@ def feature_distribution(namedataset):
         plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=5.0)
 
 
-def eval_lr(model,X_train,Y_train,X_test,Y_test):
+def eval_lr(model,train_set,test_set,train_crs_val,test_crs_val):
     """
-    evaluate the performance of a model for regression problem.
-    Author: YU Boyang
+    Evaluate the performance a model for regression problem on:
+    - train set, train cross validation set
+    - test set, test cross validation set
+
+    Co-Authors: YU Boyang, NGUYEN Van-Khoa
 
     This function uses two metrics: root mean square error and R2 score
     to show the performance of model on both train data and test data,
     rmse closer to 0 and R2 closer to 1, better the model.
 
-    Args:
-        model: An trained model of regression problem.
-        X_train,Y_train(type:numpy arrays): train data and labels
-        X_test, Y_test (type:numpy arrays):  test data and labels
-    Returns:null
-
+    Parameters:
+    ----------
+    - model: A model of regression problem.
+    - train_set: a dict of array with keywords 'X_train', 'y_train'
+    - test_set: a dict of array with keywords 'X_test', 'y_test'
+    - train_crs_val: list of tuple of arrays [([x_train_fold_1,y_train_fold_1]),...,([x_train_fold_n,y_train_fold_n])]
+        Traing sets for implementing the cross-validation.
+    - test_crs_val:  list of tuple of arrays [([x_test_fold_1,y_test_fold_1]),...,([x_test_fold_n,y_test_fold_n])]
+        Test sets for implementing the cross-validation.
+    Returns:
+    --------
+    null
       """
-
+    X_train = train_set['X_train']
+    y_train =  train_set['y_train']
+    X_test =  test_set['X_test']
+    y_test = test_set['y_test']
     # model evaluation for training set
+    model.fit(X_train,y_train)
     y_train_predict = model.predict(X_train)
-    rmse = (np.sqrt(mean_squared_error(Y_train, y_train_predict)))
+    rmse_train = (np.sqrt(mean_squared_error(y_train, y_train_predict)))
     # r2 represents the area between our model and the mean model/ area between best model and the mean model, so 1 is the best
     # https://ragrawal.wordpress.com/2017/05/06/intuition-behind-r2-and-other-regression-evaluation-metrics/
-    r2 = r2_score(Y_train, y_train_predict)
-
-    print("The model performance for training set")
-    print("--------------------------------------")
-    print('RMSE is {}'.format(rmse))
-    print('R2 score is {}'.format(r2))
-    print("\n")
+    r2_train = r2_score(y_train, y_train_predict)
+    print("----------------------------------------")
+    print("|The model performance for training set|")
+    print("---------------------------------------")
+    print('RMSE is: {:0.4f}'.format(rmse_train))
+    print('R2 score is: {:0.4f}'.format(r2_train))
 
     # model evaluation for testing set
     y_test_predict = model.predict(X_test)
-    rmse = (np.sqrt(mean_squared_error(Y_test, y_test_predict)))
-    r2 = r2_score(Y_test, y_test_predict)
+    rmse_test = (np.sqrt(mean_squared_error(y_test, y_test_predict)))
+    r2_test = r2_score(y_test, y_test_predict)
 
-    print("The model performance for testing set")
-    print("--------------------------------------")
-    print('RMSE is {}'.format(rmse))
-    print('R2 score is {}'.format(r2))
-    return None
+    print("------------------------------------")
+    print("|The model performance for test set|")
+    print("------------------------------------")
+    print('RMSE is: {:0.4f}'.format(rmse_test))
+    print('R2 score is: {:0.4f}'.format(r2_test))
+
+    # number of folds
+    k = len(train_crs_val)
+    rmse_train_cros_val = []
+    rmse_train_cros_val_total = 0
+    rmse_test_cros_val = []
+    rmse_test_cros_val_total = 0
+    r2_train_cros_val = []
+    r2_train_cros_val_total = 0
+    r2_test_cros_val = []
+    r2_test_cros_val_total = 0
+
+    # Cross-validation
+    for fold in range(k):
+        model.fit(train_crs_val[fold][0],train_crs_val[fold][1])
+        # for training fold
+        y_train_predict = model.predict(train_crs_val[fold][0])
+        float("{0:.2f}".format(r2_score(train_crs_val[fold][1], y_train_predict)))
+        rmse_train_cros_val.append(float("{0:.4f}".format(np.sqrt(mean_squared_error(train_crs_val[fold][1], y_train_predict)))))
+        rmse_train_cros_val_total += np.sqrt(mean_squared_error(train_crs_val[fold][1], y_train_predict))
+        r2_train_cros_val.append(float("{0:.4f}".format(r2_score(train_crs_val[fold][1], y_train_predict))))
+        r2_train_cros_val_total += r2_score(train_crs_val[fold][1], y_train_predict)
+        # for testing fold
+        y_test_predict = model.predict(test_crs_val[fold][0])
+        rmse_test_cros_val.append(float("{0:.4f}".format(np.sqrt(mean_squared_error(test_crs_val[fold][1], y_test_predict)))))
+        rmse_test_cros_val_total += np.sqrt(mean_squared_error(test_crs_val[fold][1], y_test_predict))
+        r2_test_cros_val.append(float("{0:.4f}".format(r2_score(test_crs_val[fold][1], y_test_predict))))
+        r2_test_cros_val_total += r2_score(test_crs_val[fold][1], y_test_predict)
+    print("----------------------------------------------------------------")
+    print("|The cross validation of the model performance for training set|")
+    print("----------------------------------------------------------------")
+    print('Cross-validation RMSE is \n {}'.format(rmse_train_cros_val))
+    print('Cross-validation R2 score is \n {}'.format(r2_train_cros_val))
+    print('Average RMSE is: {:0.4f}'.format(rmse_train_cros_val_total/k))
+    print('Average R2 score is: {:0.4f}'.format(r2_train_cros_val_total/k))
+
+    print("------------------------------------------------------------")
+    print("|The cross validation of the model performance for test set|")
+    print("------------------------------------------------------------")
+    print('Cross-validation RMSE is \n {}'.format(rmse_test_cros_val))
+    print('Cross-validation R2 score is \n {}'.format(r2_test_cros_val))
+    print('Average RMSE is: {:0.4f}'.format(rmse_test_cros_val_total/k))
+    print('Average R2 score is: {:0.4f}'.format(r2_test_cros_val_total/k))
