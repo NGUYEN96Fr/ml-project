@@ -317,7 +317,7 @@ def model_init(model='lr'):
 
     if model == 'decision_tree':
         return decision_tree()
-    if model=='lr':
+    elif model=='lr':
         return lr_model()
     elif model=='ridge':
         return lr_model()
@@ -327,10 +327,8 @@ def model_init(model='lr'):
         return svr_rbf_model()
     elif model=='lasso':
         return lasso()
-    elif model=='dt':
-        return dt()
-    elif model=='rf':
-        return rf()
+    elif model=='random forest':
+        return random_forest()
     elif model=='gbr':
         return gbr()
     elif model=='knn':
@@ -345,6 +343,14 @@ def decision_tree():
     """
     tree = DecisionTreeRegressor(random_state=0)
     return tree
+    
+def random_forest(n_estimators,max_depth=None, min_samples_split=2, min_samples_leaf=1):
+    """
+    Regression with Decision Tree
+    Author: YU Boyang
+    """
+    forest = RandomForestRegressor(n_estimators=n_estimators,max_depth=max_depth, min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf)
+    return forest    
 
 
 def lr_model():
@@ -356,21 +362,21 @@ def lr_model():
     return line
 
 
-def ridge_model():
+def ridge_model(alpha=0.1):
     """
     This function trains a Ridge Regression model form the training data
     Author: LIU Xi
     """
-    ridge = Ridge(alpha=0.1)
+    ridge = Ridge(alpha)
     return ridge
 
 
-def lasso():
+def lasso(alpha=0.0001):
     """
     This function trains a lasso model form the training data
     Author: LIU Xi
     """
-    lasso = Lasso(alpha=0.0001)
+    lasso = Lasso(alpha)
     return lasso
 
 
@@ -537,7 +543,8 @@ def eval_lr(model,train_set,test_set,train_crs_val,test_crs_val):
         model.fit(train_crs_val[fold][0],train_crs_val[fold][1])
         # for training fold
         y_train_predict = model.predict(train_crs_val[fold][0])
-        float("{0:.2f}".format(r2_score(train_crs_val[fold][1], y_train_predict)))
+        #float("{0:.2f}".format(r2_score(train_crs_val[fold][1], y_train_predict)))
+        
         rmse_train_cros_val.append(float("{0:.4f}".format(np.sqrt(mean_squared_error(train_crs_val[fold][1], y_train_predict)))))
         rmse_train_cros_val_total += np.sqrt(mean_squared_error(train_crs_val[fold][1], y_train_predict))
         r2_train_cros_val.append(float("{0:.4f}".format(r2_score(train_crs_val[fold][1], y_train_predict))))
