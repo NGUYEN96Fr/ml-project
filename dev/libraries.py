@@ -301,13 +301,17 @@ def Dimension_Reduction(samples, target, variance = 0.9, nb_max = 13, to_plot = 
     return X_new,y
 
 
-def decision_tree():
+def decision_tree(criterion='mse', splitter='best', max_depth=None, min_samples_split=2,
+min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features=None, random_state=None,
+max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, presort=False):
     """
     Regression with Decision Tree
     Author: NGUYEN Van-Khoa
 
     """
-    tree = DecisionTreeRegressor(random_state=0)
+    tree = DecisionTreeRegressor(criterion='mse', splitter='best', max_depth=None, min_samples_split=2,
+    min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features=None, random_state=None,
+    max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, presort=False)
     return tree
 
 
