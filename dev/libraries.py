@@ -301,47 +301,17 @@ def Dimension_Reduction(samples, target, variance = 0.9, nb_max = 13, to_plot = 
     return X_new,y
 
 
-def model_init(model='lr'):
-    """
-    This function initiates a regression model.
-    Co-Authors: LIU Xi,YU Boyang, NGUYEN Van-Khoa
-
-    Parameters:
-    ----------
-    - model: string
-        type of a regression algorithm
-    Returns:
-    -------
-    - a initiated model
-    """
-
-    if model == 'decision_tree':
-        return decision_tree()
-    elif model=='lr':
-        return lr_model()
-    elif model=='ridge':
-        return lr_model()
-    elif model=='svr_l':
-        return svr_linear_model()
-    elif model=='svr_rbf':
-        return svr_rbf_model()
-    elif model=='lasso':
-        return lasso()
-    elif model=='random forest':
-        return random_forest()
-    elif model=='gbr':
-        return gbr()
-    elif model=='knn':
-        return knn()
-
-
-def decision_tree():
+def decision_tree(criterion='mse', splitter='best', max_depth=None, min_samples_split=2,
+min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features=None, random_state=None,
+max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, presort=False):
     """
     Regression with Decision Tree
     Author: NGUYEN Van-Khoa
 
     """
-    tree = DecisionTreeRegressor(random_state=0)
+    tree = DecisionTreeRegressor(criterion=criterion, splitter=splitter, max_depth=max_depth, min_samples_split=min_samples_split,
+    min_samples_leaf=min_samples_leaf, min_weight_fraction_leaf=min_weight_fraction_leaf, max_features=max_features, random_state=random_state,
+    max_leaf_nodes=max_leaf_nodes, min_impurity_decrease=min_impurity_decrease, min_impurity_split=min_impurity_split, presort=presort)
     return tree
     
 def random_forest(n_estimators,max_depth=None, min_samples_split=2, min_samples_leaf=1):
