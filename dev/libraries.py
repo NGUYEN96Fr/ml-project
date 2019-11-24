@@ -207,7 +207,7 @@ def data_split(samples,target,test_size = 0.2, k = 10, shuffle = True):
     # K-fold cross-validation.
     # https://medium.com/datadriveninvestor/k-fold-cross-validation-6b8518070833
     #
-    cv = KFold(n_splits = k, random_state = 42, shuffle = False)
+    cv = KFold(n_splits = k, shuffle = shuffle)
 
     train_crs_val = []
     test_crs_val =[]
@@ -309,9 +309,9 @@ max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, presort
     Author: NGUYEN Van-Khoa
 
     """
-    tree = DecisionTreeRegressor(criterion='mse', splitter='best', max_depth=None, min_samples_split=2,
-    min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features=None, random_state=None,
-    max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, presort=False)
+    tree = DecisionTreeRegressor(criterion=criterion, splitter=splitter, max_depth=max_depth, min_samples_split=min_samples_split,
+    min_samples_leaf=min_samples_leaf, min_weight_fraction_leaf=min_weight_fraction_leaf, max_features=max_features, random_state=random_state,
+    max_leaf_nodes=max_leaf_nodes, min_impurity_decrease=min_impurity_decrease, min_impurity_split=min_impurity_split, presort=presort)
     return tree
 
 
@@ -505,7 +505,6 @@ def eval_lr(model,train_set,test_set,train_crs_val,test_crs_val):
         model.fit(train_crs_val[fold][0],train_crs_val[fold][1])
         # for training fold
         y_train_predict = model.predict(train_crs_val[fold][0])
-        float("{0:.2f}".format(r2_score(train_crs_val[fold][1], y_train_predict)))
         rmse_train_cros_val.append(float("{0:.4f}".format(np.sqrt(mean_squared_error(train_crs_val[fold][1], y_train_predict)))))
         rmse_train_cros_val_total += np.sqrt(mean_squared_error(train_crs_val[fold][1], y_train_predict))
         r2_train_cros_val.append(float("{0:.4f}".format(r2_score(train_crs_val[fold][1], y_train_predict))))
