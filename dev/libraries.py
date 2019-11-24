@@ -301,42 +301,6 @@ def Dimension_Reduction(samples, target, variance = 0.9, nb_max = 13, to_plot = 
     return X_new,y
 
 
-def model_init(model='lr'):
-    """
-    This function initiates a regression model.
-    Co-Authors: LIU Xi,YU Boyang, NGUYEN Van-Khoa
-
-    Parameters:
-    ----------
-    - model: string
-        type of a regression algorithm
-    Returns:
-    -------
-    - a initiated model
-    """
-
-    if model == 'decision_tree':
-        return decision_tree()
-    if model=='lr':
-        return lr_model()
-    elif model=='ridge':
-        return lr_model()
-    elif model=='svr_l':
-        return svr_linear_model()
-    elif model=='svr_rbf':
-        return svr_rbf_model()
-    elif model=='lasso':
-        return lasso()
-    elif model=='dt':
-        return dt()
-    elif model=='rf':
-        return rf()
-    elif model=='gbr':
-        return gbr()
-    elif model=='knn':
-        return knn()
-
-
 def decision_tree():
     """
     Regression with Decision Tree
