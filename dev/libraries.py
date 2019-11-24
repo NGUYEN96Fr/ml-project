@@ -3,6 +3,7 @@ import numpy as np
 import copy
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn import preprocessing
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split, KFold
@@ -60,7 +61,7 @@ def data_import(file,features = None ,target_label = None):
             target = data[defined_target_label]
 
     elif  file == 'prostate.data':
-        data = pd.read_csv('../data/prostate.csv', sep = '\t')
+        data = pd.read_csv('../data/prostate.data', sep = '\t')
         if (features != None) and (data != None):
 
             samples = data[features]
@@ -350,12 +351,15 @@ def lasso(alpha=0.0001):
     return lasso
 
 
-def knn():
+def knn(n_neighbors):
     """
     This function trains a KNN model form the training data
     Author: ZAN Lei
+    
+    Input: n_neighbors: int 
+    
     """
-    knn = KNeighborsRegressor(n_neighbors=int(3))
+    knn = KNeighborsRegressor(n_neighbors=int(n_neighbors))
     return knn
 
 def svr_linear_model():
@@ -443,7 +447,81 @@ def feature_distribution(namedataset):
             index += 1
         plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=5.0)
 
+def dessin_heatmap(data):
+    """show the correlation of different features chosen of the dataset
+        Author: Lei ZAN
+    Parameters:
 
+    data: data of type dataframe
+
+    Return:
+
+    correlatons map of different features chosen
+
+    """
+    plt.figure(figsize=(20, 10))
+    sns.heatmap(data.corr().abs(),  annot=True)
+
+    
+def dessin_distribution(data, column_sels, rows, cols):
+    """show the distribution of different features chosen of the dataset
+        Author: Lei ZAN
+    Parameters:
+
+    data: dataframe like data
+    column_sels: list of columns chosen 
+
+    Return:
+
+    distributions map of different features chosen
+
+    """
+    min_max_scaler = preprocessing.MinMaxScaler()
+    #column_sels = ['LSTAT', 'INDUS', 'NOX', 'PTRATIO', 'RM', 'TAX', 'DIS', 'AGE']
+    x = data.loc[:,column_sels]
+    x = pd.DataFrame(data=min_max_scaler.fit_transform(x), columns=column_sels)
+    fig, axs = plt.subplots(ncols=cols, nrows=rows, figsize=(20, 10))
+    index = 0
+    axs = axs.flatten()
+    for col in x.columns:
+        sns.distplot(x[col], ax=axs[index])
+        index += 1
+    plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=5.0)
+
+def tunning_knn(X_train, y_train, X_test, y_test):
+    """find the best parameter n_neighbors for the model  
+        Author: Lei ZAN
+    Parameters:
+
+    X_train: type array like
+    y_train: type array like 
+    X_test: type array like 
+    y_test: type array like 
+
+    Return:
+
+    The best n_neighbours for this model 
+
+    """
+    start = 3
+    stop = 50
+    res = []
+    best_n_neighbors = 0
+    best_score = 0 
+    for i in range(start, stop):
+        model = knn(i)
+        model.fit(X_train,y_train)
+        score = model.score(X_test, y_test)
+        res.append(score)
+        if score > best_score:
+            best_score = score
+            best_n_neighbors = i
+    plt.plot(range(start, stop), res)
+    print("The best r2 score is ", best_score)
+    print('The best n_neighbors is ', best_n_neighbors)
+    return best_n_neighbors
+    
+    
 def eval_lr(model,train_set,test_set,train_crs_val,test_crs_val):
     """
     Evaluate the performance a model for regression problem on:
