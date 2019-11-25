@@ -208,7 +208,7 @@ def data_split(samples,target,test_size = 0.2, k = 10, shuffle = True):
     # K-fold cross-validation.
     # https://medium.com/datadriveninvestor/k-fold-cross-validation-6b8518070833
     #
-    cv = KFold(n_splits = k, random_state = 42, shuffle = False)
+    cv = KFold(n_splits = k, random_state = 42, shuffle = shuffle)
 
     train_crs_val = []
     test_crs_val =[]
